@@ -707,14 +707,22 @@ static bool read_jpeg_tile(openslide_t *osr,
   }
 
   // draw it
-  cairo_surface_t *surface = cairo_image_surface_create_for_data((unsigned char *) tiledata,
-								 CAIRO_FORMAT_RGB24,
-								 tw, th,
-								 tw * 4);
+  const int64_t d = 4096;
+  for (int64_t sy = 0; sy < th; sy += d) {
+    for (int64_t sx = 0; sx < tw; sx += d) {
+      int64_t sw = MIN(tw - sx, d);
+      int64_t sh = MIN(th - sy, d);
 
-  cairo_set_source_surface(cr, surface, 0, 0);
-  cairo_surface_destroy(surface);
-  cairo_paint(cr);
+      size_t offset = (sy * tw + sx);
+      cairo_surface_t *surface = cairo_image_surface_create_for_data((unsigned char *)(tiledata + offset),
+                                     CAIRO_FORMAT_RGB24,
+                                     sw, sh,
+                                     tw * 4);
+      cairo_set_source_surface(cr, surface, sx, sy);
+      cairo_surface_destroy(surface);
+      cairo_paint(cr);
+    }
+  }
 
   // done with the cache entry, release it
   _openslide_cache_entry_unref(cache_entry);
