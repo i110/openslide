@@ -1462,8 +1462,8 @@ static bool hamamatsu_vms_part2(openslide_t *osr,
       fclose(f);
       goto FAIL;
     }
-    jp->tiles_across = jp->width / jp->tile_width;
-    jp->tiles_down = jp->height / jp->tile_height;
+    jp->tiles_across = (jp->width / jp->tile_width) + !!(jp->width % jp->tile_width);
+    jp->tiles_down = (jp->height / jp->tile_height) + !!(jp->height % jp->tile_height);
     jp->tile_count = jp->tiles_across * jp->tiles_down;
 
     if (comment) {
@@ -2345,8 +2345,8 @@ static bool hamamatsu_ndpi_open(openslide_t *osr, const char *filename,
       jp->end_in_file = start_in_file + num_bytes;
       jp->width = width;
       jp->height = height;
-      jp->tiles_across = width / jp_tw;
-      jp->tiles_down = height / jp_th;
+      jp->tiles_across = (width / jp_tw) + !!(width % jp_tw);
+      jp->tiles_down = (height / jp_th) + !!(height % jp_th);
       jp->tile_width = jp_tw;
       jp->tile_height = jp_th;
       jp->tile_count = jp->tiles_across * jp->tiles_down;
